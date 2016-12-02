@@ -28,7 +28,7 @@ An example
 
 It's not idomatic to model this in an OOP language, however, in a functional language this is very straight forward. There are many different ways to encode the error into the API, I'm going with the simplist. In F# it would be as follows: 
 
-    divide (top: int) (bottom: int): int option 
+    let divide (top: int) (bottom: int): int option 
 
 the divide function returns an option of int. An option type is a choice between nothing represented by ``None`` or something plus the value ie ``Some `a``. The ```a`` syntax is the same a generic a generiics in C# eg ``<T>``. The implementation of the option type uses a type that C# does not have called a desrimnated union (DU). A DU is able to represent a choice between many different cases. For option we only have two cases ``None`` and ``Some `a`` so it represetnted as the following: 
 
