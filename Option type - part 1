@@ -3,10 +3,12 @@
 
 Creating a clear interface/API is key to writing clean code. Object-Orientated code attempts this, but sometimes falls short. In this series, I'll aim to show a basic type that functional programming, has that leads to a interfaces/APIs that are easier to understand. I'll assume that you know C# or similar Object Orientated language, as well as two other concepts, pattern matching (this is coming to C# 7) and descritmated union (DU) types. See [Pattern Matching](https://fsharpforfunandprofit.com/posts/match-expression/) and [Decriminated Union](https://fsharpforfunandprofit.com/posts/discriminated-unions/) for more details. We need a problem to solve, lets assume you need to write the a method/function to divide
 
+<pre lang="csharp">
     public interface Math
     {
         int Divide(int top, int bottom);
     }
+</pre>
 
 Ok, so we've got an interface, and we can easily write the implementation (or skip the interface and write it as a static class). The problem comes when we do the following:
 
@@ -36,6 +38,7 @@ the divide function returns an option of int. An option type is a choice between
 
 To use the option type with our divide function, ``Some`` should be returned with the value if it succeded, or ``None`` should be returned if it failed. A simple implementation and usage of this would be the following:
 
+<pre lang="fsharp">
     let divide (top: int) (bottom: int): int option = 
         match bottom with 
             | 0 -> None
@@ -43,13 +46,15 @@ To use the option type with our divide function, ``Some`` should be returned wit
 
     let result = divide 1 0 
     // result: None
+</pre>
 
 Pattern matching is used here to catch the failure and ensure the correct result is returned. For the result, pattern matching can also be used. ie:
 
-<pre lang="fsharp">let businessCode x y =  
-    match divide x y with 
-    | None -> // handle error
-    | Some x -> // the result of the value
+<pre lang="fsharp">
+    let businessCode x y =  
+        match divide x y with 
+        | None -> // handle error
+        | Some x -> // the result of the value
 </pre>
 
 How is this better?
