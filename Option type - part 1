@@ -34,9 +34,11 @@ It's not idomatic to model this in an OOP language, however, in a functional lan
 
 the divide function returns an option of int. An option type is a choice between nothing represented by ``None`` or something plus the value ie ``Some `a``. The `` `a `` syntax is the same as generics in C# e.g.   ``<T>``. The implementation of the option type uses a type that C# does not have called a desrimnated union (DU). A DU is able to represent a choice between many different cases. For option we only have two cases ``None`` and ``Some `a`` so it represetnted as the following: 
 
-    type Option<`a> = 
-        | Some of `a
-        | None
+<pre lang="fsharp">
+type Option<`a> = 
+    | Some of `a
+    | None
+</pre>
 
 To use the option type with our divide function, ``Some`` should be returned with the value if it succeded, or ``None`` should be returned if it failed. A simple implementation and usage of this would be the following:
 
