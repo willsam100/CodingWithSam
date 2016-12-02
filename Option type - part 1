@@ -46,10 +46,11 @@ To use the option type with our divide function, ``Some`` should be returned wit
 
 Pattern matching is used here to catch the failure and ensure the correct result is returned. For the result, pattern matching can also be used. ie:
 
-    let businessCode x y =  
-        match divide x y with 
-        | None -> // handle error
-        | Some x -> // the result of the value
+<pre lang="fsharp">let businessCode x y =  
+    match divide x y with 
+    | None -> // handle error
+    | Some x -> // the result of the value
+</pre>
 
 How is this better?
 
