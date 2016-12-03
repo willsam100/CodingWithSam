@@ -1,7 +1,7 @@
 # .NET: None, None, None or Exceptions
 
 
-Creating a clear interface/API is key to writing clean code. Object-Orientated code attempts this, but sometimes falls short. In this series, I'll aim to show a basic type that functional programming, has that leads to a interfaces/APIs that are easier to understand. I'll assume that you know C# or similar Object Orientated language, as well as two other concepts, pattern matching (this is coming to C# 7) and descritmated union (DU) types. See [Pattern Matching](https://fsharpforfunandprofit.com/posts/match-expression/) and [Decriminated Union](https://fsharpforfunandprofit.com/posts/discriminated-unions/) for more details. 
+Creating a clear interface/API is key to writing clean code. Object-Orientated code attempts this, but sometimes falls short. In this series, I'll aim to show a basic type that functional programming, has that leads to a interfaces/APIs that are easier to understand. I'll assume that you know C# or similar Object Orientated language, as well as two other concepts, pattern matching (this is coming to C# 7) and discriminated union (DU) types. See [Pattern Matching](https://fsharpforfunandprofit.com/posts/match-expression/) and [Discriminated Union](https://fsharpforfunandprofit.com/posts/discriminated-unions/) for more details. 
 
 We need a problem to solve, lets assume you need to write the a method/function to divide
 
@@ -16,23 +16,23 @@ Ok, so we've got an interface, and we can easily write the implementation (or sk
 
     int result = Math.Divide(1, 0);
 
-With this, everything goes horribly wrong and we get a divide by zero execption at runtime. The simple fix is to put a try catch around the methord and be done with it (or not divide by zero), however this doesn't solve the problem permantly. Once the code is refactored, a new developer joins, or you forget, the exception could return (hopefully not in production). The root of problem is not the exception, but rather, that the interface promises a little more than it can deliver; It can't divide 1 by 0. This is a rather contrived example, since most developers could spot this error, however as already stated, ponder when it's not obvious that an exception will be thrown. How will you prove and educate developers about this?
+With this, everything goes horribly wrong and we get a divide by zero exception at runtime. The simple fix is to put a try catch around the method and be done with it (or not divide by zero), however this doesn't solve the problem permanently. Once the code is refactored, a new developer joins, or you forget, the exception could return (hopefully not in production). The root of problem is not the exception, but rather, that the interface promises a little more than it can deliver; It can't divide 1 by 0. This is a rather contrived example, since most developers could spot this error, however as already stated, ponder when it's not obvious that an exception will be thrown. How will you prove and educate developers about this?
 
-**An OOP apprach**
+**An OOP approach**
 
-To solve this using an OOP approach would be to write a unit test asserting the application code doesn't call calling divide when an input is zero (if anyone has a better suggestion for solving this problem I would love to hear). This would mean a failing a test would test would catch any errors. I see a couple of problems with this approach though. The biggest, is that you don't see this failure to after you have refactored the code and then run the unit tests. The developer must now go through all the tests that failed and attempt to understand why it failed (when refactoring I always find there are couple). So the tests are really educating the developer, highlighting that the applicaton code is not clear. The second problem I see with the unit test approach is that it still doesn't protect against new code written against the API. Unless the developer reads all the tests that used the api in the past or writes some tests aginst the API as suggested in clean code, then the execption could go unoticied again. 
+To solve this using an OOP approach would be to write a unit test asserting the application code doesn't call calling divide when an input is zero (if anyone has a better suggestion for solving this problem I would love to hear). This would mean a failing a test would test would catch any errors. I see a couple of problems with this approach though. The biggest, is that you don't see this failure to after you have refactored the code and then run the unit tests. The developer must now go through all the tests that failed and attempt to understand why it failed (when refactoring I always find there are couple). So the tests are really educating the developer, highlighting that the application code is not clear. The second problem I see with the unit test approach is that it still doesn't protect against new code written against the API. Unless the developer reads all the tests that used the api in the past or writes some tests against the API as suggested in clean code, then the exception could go unnoticed again. 
 
 **A problem with no solution; hardly**
 
-The solution is to reduce how much the API promises by using types. By makng the API more explicit, it will be clear to developers when errors occur, and to handle them. So what type should this be?
+The solution is to reduce how much the API promises by using types. By making the API more explicit, it will be clear to developers when errors occur, and to handle them. So what type should this be?
 
 **An example** 
 
-It's not idomatic to model this in an OOP language, however, in a functional language this is very straight forward. There are many different ways to encode the error into the API, I'm going with the simplist. In F# it would be as follows: 
+It's not idiomatic to model this in an OOP language, however, in a functional language this is very straight forward. There are many different ways to encode the error into the API, I'm going with the simplest. In F# it would be as follows: 
 
     let divide (top: int) (bottom: int): int option 
 
-the divide function returns an option of int. An option type is a choice between nothing represented by ``None`` or something plus the value ie ``Some `a``. The `` `a `` syntax is the same as generics in C# e.g.   ``<T>``. The implementation of the option type uses a type that C# does not have called a desrimnated union (DU). A DU is able to represent a choice between many different cases. For option we only have two cases ``None`` and ``Some `a`` so it represetnted as the following: 
+the divide function returns an option of int. An option type is a choice between nothing represented by ``None`` or something plus the value ie ``Some `a``. The `` `a `` syntax is the same as generics in C# e.g.   ``<T>``. The implementation of the option type uses a type that C# does not have called a discriminated union (DU). A DU is able to represent a choice between many different cases. For option we only have two cases ``None`` and ``Some `a`` so it represented as the following: 
 
 <pre lang="fsharp">
 type Option<`a> = 
@@ -40,7 +40,7 @@ type Option<`a> =
     | None
 </pre>
 
-To use the option type with our divide function, ``Some`` should be returned with the value if it succeded, or ``None`` should be returned if it failed. A simple implementation and usage of this would be the following:
+To use the option type with our divide function, ``Some`` should be returned with the value if it succeeded, or ``None`` should be returned if it failed. A simple implementation and usage of this would be the following:
 
 <pre lang="fsharp">
 let divide (top: int) (bottom: int): int option = 
@@ -63,8 +63,8 @@ let businessCode x y =
 
 **How is this better?**
 
-The OOP approach had a problem with the unit tests educating the developer, while using option to model the failure, no unit tests are needed as the API is clear that there are some cases in which it can't return an int. The second problem I suggested with the OOP approash was new code written against the API might forget about the error. Again, using the option type means that developer is forced to think about the error case when programming agains the API. To get the result out of the option type pattern matching is required result in exatcly two branches; success and failure. 
+The OOP approach had a problem with the unit tests educating the developer, while using option to model the failure, no unit tests are needed as the API is clear that there are some cases in which it can't return an int. The second problem I suggested with the OOP approach was new code written against the API might forget about the error. Again, using the option type means that developer is forced to think about the error case when programming against the API. To get the result out of the option type pattern matching is required result in exactly two branches; success and failure. 
 
 **Going further**
 
-Stay tuned for part 2 where I wire this up into an example. In subsequent posts I'll also show how using the FP verison you can abstract away the option type and the explict pattern match in the bussinss code. I'll also show you can improve the error handling to provide even more information. 
+Stay tuned for part 2 where I wire this up into an example. In subsequent posts I'll also show how using the FP version you can abstract away the option type and the explicit pattern match in the business code. I'll also show you can improve the error handling to provide even more information. 
