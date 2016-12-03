@@ -1,11 +1,10 @@
 # .NET: None, None, None or Exceptions
-Creating a clear interface/API is key to writing <a target="_blank" href="https://www.amazon.com/gp/product/0132350882/ref=as_li_tl?ie=UTF8&camp=1789&creative=9325&creativeASIN=0132350882&linkCode=as2&tag=codingwithsam-20&linkId=4a9afb03ee2cebd83bec7e5f2b1abdc2">Clean Code</a><img src="//ir-na.amazon-adsystem.com/e/ir?t=codingwithsam-20&l=am2&o=1&a=0132350882" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />. Object-Orientated code attempts this, but sometimes falls short. In this series, I'll aim to show a basic type that functional programming has that leads to a interfaces/APIs that are easier to understand. 
+Creating a clear interface/API is key to writing <a target="_blank" href="https://www.amazon.com/gp/product/0132350882/ref=as_li_tl?ie=UTF8&camp=1789&creative=9325&creativeASIN=0132350882&linkCode=as2&tag=codingwithsam-20&linkId=4a9afb03ee2cebd83bec7e5f2b1abdc2">Clean Code</a><img src="//ir-na.amazon-adsystem.com/e/ir?t=codingwithsam-20&l=am2&o=1&a=0132350882" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />. Object-Orientated code attempts this, but sometimes falls short. In this series, I'll aim to show a basic type that functional programming has that leads to interfaces/APIs that are easier to understand. 
 
 **Prerequisites**
-
 I'll assume that you know C# or similar Object Orientated language, as well as two other concepts, pattern matching (this is coming to C# 7) and discriminated union (DU) types. See [Pattern Matching](https://fsharpforfunandprofit.com/posts/match-expression/) and [Discriminated Union](https://fsharpforfunandprofit.com/posts/discriminated-unions/) for more details. 
 
-We need a problem to solve, lets assume you need to write the a method/function to divide
+We need a problem to solve, lets assume you need to write the a method/function to divide two numbers
 
 <pre lang="csharp">
     public interface Math
@@ -18,16 +17,29 @@ Ok, so we've got an interface, and we can easily write the implementation (or sk
 
     int result = Math.Divide(1, 0);
 
-With this, everything goes horribly wrong and we get a divide by zero exception at runtime. The simple fix is to put a try catch around the method and be done with it (or not divide by zero), however this doesn't solve the problem permanently. Once the code is refactored, a new developer joins, or you forget, the exception could return (hopefully not in production). The root of problem is not the exception, but rather, that the interface promises a little more than it can deliver; It can't divide 1 by 0. This is a rather contrived example, since most developers could spot this error, however as already stated, ponder when it's not obvious that an exception will be thrown. How will you prove and educate developers about this?
+The are a few problems with this:
 
+- Throws an exception at runtime
+- The interface does not suggest that it throws an exception
+
+<br />
 **An OOP approach**
 
-To solve this using an OOP approach would be to write a unit test asserting the application code doesn't call calling divide when an input is zero (if anyone has a better suggestion for solving this problem I would love to hear). This would mean a failing a test would test would catch any errors. I see a couple of limitations with this approach though: 
-- The biggest, is that you don't see this failure to after you have refactored the code and then run the unit tests. The developer must now go through all the tests that failed and attempt to understand why it failed (when refactoring I always find there are couple). So the tests are really educating the developer, highlighting that the application code is not clear. - Unit tests don't protect against new code written against the API. Unless the developer reads all the tests that used the api in the past or writes some tests against the API as suggested in <a target="_blank" href="https://www.amazon.com/gp/product/0132350882/ref=as_li_tl?ie=UTF8&camp=1789&creative=9325&creativeASIN=0132350882&linkCode=as2&tag=codingwithsam-20&linkId=4a9afb03ee2cebd83bec7e5f2b1abdc2">Clean Code</a><img src="//ir-na.amazon-adsystem.com/e/ir?t=codingwithsam-20&l=am2&o=1&a=0132350882" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />, then the exception could go unnoticed again. 
+- surround with a try catch to and handle the case (after observing the failure at runtime)
+- write a unit test to assert the error case (divide by 0) is handled correctly. 
+- In the extreme case, as advised in <a target="_blank" href="https://www.amazon.com/gp/product/0132350882/ref=as_li_tl?ie=UTF8&camp=1789&creative=9325&creativeASIN=0132350882&linkCode=as2&tag=codingwithsam-20&linkId=4a9afb03ee2cebd83bec7e5f2b1abdc2">Clean Code</a><img src="//ir-na.amazon-adsystem.com/e/ir?t=codingwithsam-20&l=am2&o=1&a=0132350882" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" /> a unit test could be written against the divide interface and then referred back to later. 
 
+<br />
+However, I see a few limitations with this:
+
+- The exception must be observed to code for it. For this contrived example, it is possible to reason that this would be fail, but that can not be known with 100% certainty prior to executing the code (without looking at the implementation). In OOP for error handling either an exception can be thrown or -1 could be returned (rare cases use an out variable), either case is unclear. 
+- Developers rarely read unit tests to understand what the code is doing. Unit tests are written to prevent regressions in the software.
+- A unit test does not protect against new usages of the api. The developer is required to remember that it throws an exception. 
+
+<br /> 
 **A problem with no solution; hardly**
 
-The solution is to reduce how much the API promises by using types. By making the API more explicit, it will be clear to developers when errors occur, and to handle them. So what type should this be?
+The solution is to reduce how much the API promises by using types. By making the API more explicit, it will be clear to developers that errors can occur, and to handle them. So what type should this be?
 
 **An example** 
 
@@ -35,7 +47,9 @@ It's not idiomatic to model this in an OOP language, however, in a functional la
 
     let divide (top: int) (bottom: int): int option 
 
-the divide function returns an option of int. An option type is a choice between nothing represented by ``None`` or something plus the value ie ``Some `a``. The `` `a `` syntax is the same as generics in C# e.g.   ``<T>``. The implementation of the option type uses a type that C# does not have called a discriminated union (DU). A DU is able to represent a choice between many different cases. For option we only have two cases ``None`` and ``Some `a`` so it represented as the following: 
+The divide function returns an option of int. An option type is a choice between nothing represented by ``None`` or something plus the value ie ``Some `a``. The `` `a `` syntax is the same as generics in C# e.g.   ``<T>``. To make this clearer lets look at the implementation. 
+
+Option uses a type that C# does not have called a discriminated union (DU). A DU is able to represent a choice between many different cases. For option we only have two cases ``None`` and ``Some `a`` so it represented as the following: 
 
 <pre lang="fsharp">
 type Option<`a> = 
@@ -43,7 +57,7 @@ type Option<`a> =
     | None
 </pre>
 
-To use the option type with our divide function, ``Some`` should be returned with the value if it succeeded, or ``None`` should be returned if it failed. A simple implementation and usage of this would be the following:
+I'll show how to get the value out of success in a moment. Before that, lets first look at a contrived implementation and usage of divide. ``Some`` should be returned with the value if it succeeded, or ``None`` should be returned if it failed. With the usage of pattern matching (a functional construct that is basically a better switch statement) would look as follows:
 
 <pre lang="fsharp">
 let divide (top: int) (bottom: int): int option = 
@@ -53,21 +67,26 @@ let divide (top: int) (bottom: int): int option =
 
 let result = divide 1 0 
 // result: None
+
+let result = divide 10 5 
+// result: Success 2
 </pre>
 
-Pattern matching is used here to catch the failure and ensure the correct result is returned. For the result, pattern matching can also be used. ie:
+Two example are shown, one with the failure case of ``None`` and one for the success case ``Success 2``. The value of 2 is stuck inside the success type. Using pattern matching again, the value can be extracted and then used as an integer. ie:
 
 <pre lang="fsharp">
 let businessCode x y =  
     match divide x y with 
     | None -> // handle error
-    | Some x -> // the result of the value
+    | Some x -> // x is the result of the division
 </pre>
 
 **How is this better?**
 
-The OOP approach had a problem with the unit tests educating the developer, while using option to model the failure, no unit tests are needed as the API is clear that there are some cases in which it can't return an int. The second problem I suggested with the OOP approach was new code written against the API might forget about the error. Again, using the option type means that developer is forced to think about the error case when programming against the API. To get the result out of the option type pattern matching is required result in exactly two branches; success and failure. 
+- the types of the function (return type of int option) shows the that failure can occur
+- The developer does not need to execute the code to see if it can fail
+- The developer must write an implementation for the failure case when using pattern matching (or similar approach)
 
+<br />
 **Going further**
-
-Stay tuned for part 2 where I wire this up into an example. In subsequent posts I'll also show how using the FP version you can abstract away the option type and the explicit pattern match in the business code. I'll also show you can improve the error handling to provide even more information. 
+Stay tuned for part 2 where I wire this up into an example. In subsequent posts I'll also show how using the FP version you can abstract away the explicit pattern match in the business code. I'll also show you can improve the error handling to provide even more information. 
