@@ -27,12 +27,12 @@ The are a few problems with this:
 
 - surround with a try catch to and handle the case (after observing the failure at runtime)
 - write a unit test to assert the error case (divide by 0) is handled correctly. 
-- In the extreme case, as advised in <a target="_blank" href="https://www.amazon.com/gp/product/0132350882/ref=as_li_tl?ie=UTF8&camp=1789&creative=9325&creativeASIN=0132350882&linkCode=as2&tag=codingwithsam-20&linkId=4a9afb03ee2cebd83bec7e5f2b1abdc2">Clean Code</a><img src="//ir-na.amazon-adsystem.com/e/ir?t=codingwithsam-20&l=am2&o=1&a=0132350882" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" /> a unit test could be written against the divide interface and then referred back to later. 
+- In the extreme case, as advised in <a target="_blank" href="https://www.amazon.com/gp/product/0132350882/ref=as_li_tl?ie=UTF8&camp=1789&creative=9325&creativeASIN=0132350882&linkCode=as2&tag=codingwithsam-20&linkId=4a9afb03ee2cebd83bec7e5f2b1abdc2">Clean Code</a><img src="//ir-na.amazon-adsystem.com/e/ir?t=codingwithsam-20&l=am2&o=1&a=0132350882" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />, a unit test could be written against the divide interface and then referred back to later. 
 
 <br />
 However, I see a few limitations with this:
 
-- The exception must be observed to code for it. For this contrived example, it is possible to reason that this would be fail, but that can not be known with 100% certainty prior to executing the code (without looking at the implementation). In OOP for error handling either an exception can be thrown or -1 could be returned (rare cases use an out variable), either case is unclear. 
+- The exception must be observed to code for it. For this contrived example, it is possible to reason that this fail, but that can not be known with 100% certainty prior to executing the code (without looking at the implementation). In OOP for error handling, either an exception can be thrown or -1 could be returned (rare cases use an out variable), either case is unclear. 
 - Developers rarely read unit tests to understand what the code is doing. Unit tests are written to prevent regressions in the software.
 - A unit test does not protect against new usages of the api. The developer is required to remember that it throws an exception. 
 
@@ -47,9 +47,9 @@ It's not idiomatic to model this in an OOP language, however, in a functional la
 
     let divide (top: int) (bottom: int): int option 
 
-The divide function returns an option of int. An option type is a choice between nothing represented by ``None`` or something plus the value ie ``Some `a``. The `` `a `` syntax is the same as generics in C# e.g.   ``<T>``. To make this clearer lets look at the implementation. 
+The divide function returns an option of int. An option type is a choice between nothing, represented by ``None``, or something plus the value ie ``Some `a``. The `` `a `` syntax is the same as generics in C# e.g.   ``<T>``. To make this clearer lets look at the implementation. 
 
-Option uses a type that C# does not have called a discriminated union (DU). A DU is able to represent a choice between many different cases. For option we only have two cases ``None`` and ``Some `a`` so it represented as the following: 
+Option uses a type that C# does not have called a discriminated union (DU). A DU is able to represent a choice between many different cases. For option we only have two cases ``None`` and ``Some `a`` so it is represented as the following: 
 
 <pre lang="fsharp">
 type Option<`a> = 
