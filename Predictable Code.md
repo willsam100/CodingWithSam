@@ -18,7 +18,7 @@ An interface with some math operations for a list. I've modeled with an interfac
     
 First cut of the tests (for using the Math implementation of IMath)
 <pre lang="csharp">
-    public Main(]) 
+    public Main() 
     {
         IMath math = new Math();
         var inputDoubled = math.Double(new List<int> {1,2});
@@ -34,7 +34,7 @@ First cut of the tests (for using the Math implementation of IMath)
 
 After code refactor
 <pre lang="csharp">
-    public void Main(])
+    public void Main()
     {
         IMath math = new Math();
         var input = new List<int> {1,2};
@@ -66,14 +66,14 @@ Clearly this is some unpredictable code; the refactor should have worked. At fir
 - Use a Functional language (F#), you get this all for free while still being on .NET
 
 **How does F# do this**
-Functional programming is about using functions + data to model the domain/behaviour. Encapsulation and abstractions are not goal. Common patterns are still factored out but these a for a another post. Our problem above would written in F# looks like this: (with the implementation):  
+Functional programming is about using functions + data to model the domain/behaviour. Encapsulation and abstractions are not goal. Common patterns are still factored out but these a for a another post. Our problem above written in F# looks like this (with the implementation):  
 <pre lang="fsharp">
     module Math
 
-    let doubleList: int list -> int List = // The type of the function. It takes a list of ints and returns a list of ints
+    let doubleList: int List -> int List = // The type of the function. It takes a list of ints and returns a list of ints
         fun input -> List.map (fun x -> x * 2) input
     let squareList: int List -> int List // The type of the function. It takes a list of ints and returns a list of ints
-        fun input = List.map (fun x -> x * x) input
+        fun input -> List.map (fun x -> x * x) input
 
     let main() = 
         let input = [1;2]
@@ -81,7 +81,7 @@ Functional programming is about using functions + data to model the domain/behav
         let inputSquared = squareList input 
 
         Assert.Equal(2, inputDoubled.[0])
-        Assert.Equal(4, inputDoubled,[1])
+        Assert.Equal(4, inputDoubled.[1])
 
         Assert.Equal(1, inputSquared.[0])
         Assert.Equal(4, inputSquared.[1])
@@ -100,4 +100,4 @@ Functional programming is about using functions + data to model the domain/behav
   
 **Immutability FTW**
 
-NB: I claimed that FP does not have abstractions as goal. FP makes great leaps to reduce boilerplate code and encourage code resuse, but takes a mathematical approach to do this. Higher order functions and Monads (eg. State Monad) are examples of these.
+NB: I claimed that FP does not have abstractions as goal. FP makes great leaps to reduce boilerplate code and encourage code reuse, but takes a mathematical approach to do this. Higher order functions and Monads (eg. State Monad) are examples of these.
