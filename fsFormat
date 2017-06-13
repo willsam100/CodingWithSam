@@ -1,0 +1,1 @@
+mono FsFormatting/fsformatting.exe literate --processDirectory --inputDirectory ~/projects/CodingWithSam/
